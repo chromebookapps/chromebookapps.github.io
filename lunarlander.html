@@ -108,7 +108,7 @@
       <p>Land on [BLUE] pad to rescue people.</p>
       <p>Land on [YELLOW] pad to refuel.</p>
       <p>Land on [GREEN] pad to drop off people and advance.</p>
-      <p>Avoid enemy fire!</p>
+      <p>Avoid enemy fire! (50 levels to complete)</p>
       <p class="blink">Press [ENTER] to Start</p>
       <div id="high-scores">
         <h2>High Scores</h2>
@@ -652,6 +652,7 @@
               if (level === 50) {
                 setTimeout(() => {
                   gameState = 'gameOver';
+                  saveHighScore(score);
                   showEndScreen(
                     "CONGRATULATIONS!",
                     `You've beaten the game! Final Score: ${score}`,
@@ -703,6 +704,7 @@
     keys.ArrowUp = false;
     if (lives <= 0) {
       gameState = 'gameOver';
+      saveHighScore(score);
       showEndScreen("MISSION FAILED", message, "Press [ENTER] to Try Again");
     } else {
       setTimeout(() => {
@@ -730,7 +732,6 @@
     gameOverScreen.classList.add('hidden');
   }
   function showEndScreen(title, message, prompt) {
-    saveHighScore(score);
     displayHighScores();
     gameOverTitle.textContent = title;
     gameOverMessage.textContent = message;
