@@ -17,49 +17,44 @@ body {
 background-color: var(--bg-color);
 color: var(--text-color);
 font-family: var(--font);
-display: flex;
-flex-direction: column;
-align-items: center;
 margin: 0;
-padding: 1.5em;
+padding: 0.5em;
 min-height: 100vh;
 box-sizing: border-box;
 transition: background-color 0.3s ease;
+display: grid;
+grid-template-columns: 320px 1fr;
+grid-template-rows: auto 1fr;
+gap: 1.5em;
+height: 100vh;
 }
 body.dragover {
 background-color: #2a2a2a;
 }
-h1 {
-color: var(--accent-color);
-text-shadow: 0 0 5px var(--accent-color);
-margin: 0;
-text-align: center;
-}
 #controls {
+grid-column: 1 / 2;
+grid-row: 2 / 3;
 background: #2c2c2c;
 padding: 1.5em;
 border-radius: 8px;
-border: 2px dashed transparent;
-margin-bottom: 1.5em;
 display: flex;
 flex-direction: column;
 gap: 1.2em;
 align-items: center;
 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-width: 90%;
-max-width: 500px;
 box-sizing: border-box;
-transition: border-color 0.3s ease;
+height: 100%;
+overflow-y: auto;
 }
 body.dragover #controls {
-border-color: var(--accent-color);
+border: 2px dashed var(--accent-color);
 }
 label {
 font-size: 1.1em;
 }
 input[type="file"],
 input[type="range"] {
-width: 100%;
+width: 98%;
 max-width: 300px;
 }
 button {
@@ -79,11 +74,11 @@ background-color: #6a1b9a;
 box-shadow: 0 0 10px var(--accent-color);
 }
 #ascii-output {
+grid-column: 2 / 3;
+grid-row: 2 / 3;
 background: #000;
 border: 1px solid var(--border-color);
 padding: 1em;
-width: 100%;
-max-width: 1400px;
 overflow: auto;
 white-space: pre;
 line-height: 0.55em;
@@ -91,7 +86,8 @@ font-size: 8px;
 letter-spacing: 0.05em;
 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 box-sizing: border-box;
-flex-grow: 1;
+height: 98%;
+font-family: 'Courier New', Courier, monospace;
 }
 .toggle-switch {
 display: flex;
@@ -140,15 +136,15 @@ transform: translateX(26px);
 </style>
 </head>
 <body>
-<h1>✨ Image to ASCII Art ✨</h1>
-<p>&copy;2025 Johnny Heggelund</p>
 <div id="controls">
-<label for="image-upload">Upload an Image (or drag & drop):</label>
+<label for="image-upload">Upload Image (or drag & drop):</label>
 <input type="file" id="image-upload" accept="image/*">
 <label for="width-slider">ASCII Width: <span id="width-value">150</span></label>
 <input type="range" id="width-slider" min="50" max="500" value="150">
+<label for="contrast-slider">Contrast: <span id="contrast-value">1.0</span></label>
+<input type="range" id="contrast-slider" min="0.5" max="3.0" value="1.0" step="0.1">
 <div class="toggle-switch">
-<span>Black & White</span>
+<span>Mono</span>
 <label class="switch">
 <input type="checkbox" id="color-toggle">
 <span class="slider"></span>
@@ -157,24 +153,35 @@ transform: translateX(26px);
 </div>
 <button id="copy-button">Copy ASCII Art</button>
 <button id="export-html-button">Export as HTML</button>
+<p>&copy;2025 Johnny Heggelund</p>
 </div>
 <pre id="ascii-output">Your masterpiece will appear here...</pre>
 <canvas id="canvas" style="display:none;"></canvas>
 <script>
+
 const imageUpload = document.getElementById('image-upload');
 const asciiOutput = document.getElementById('ascii-output');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
 const widthSlider = document.getElementById('width-slider');
 const widthValue = document.getElementById('width-value');
 const copyButton = document.getElementById('copy-button');
 const exportHtmlButton = document.getElementById('export-html-button');
 const colorToggle = document.getElementById('color-toggle');
-const ASCII_CHARS = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+const contrastSlider = document.getElementById('contrast-slider');
+const contrastValue = document.getElementById('contrast-value');
+
+const ASCII_CHARS = " `.\"^,:;Il!i><~+_-?][)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdkhbao*#MW&8%B@$".split('');
 const initialPlaceholderText = 'Your masterpiece will appear here...';
 let currentImage = null;
+
 widthSlider.addEventListener('input', () => {
 widthValue.textContent = widthSlider.value;
+handleLoadedImage();
+});
+contrastSlider.addEventListener('input', () => {
+contrastValue.textContent = parseFloat(contrastSlider.value).toFixed(1);
 handleLoadedImage();
 });
 colorToggle.addEventListener('change', handleLoadedImage);
@@ -184,6 +191,24 @@ if (file) {
 handleImageFile(file);
 }
 });
+
+document.body.addEventListener('dragover', (e) => {
+e.preventDefault();
+document.body.classList.add('dragover');
+});
+document.body.addEventListener('dragleave', (e) => {
+e.preventDefault();
+document.body.classList.remove('dragover');
+});
+document.body.addEventListener('drop', (e) => {
+e.preventDefault();
+document.body.classList.remove('dragover');
+const file = e.dataTransfer.files[0];
+if (file && file.type.startsWith('image/')) {
+handleImageFile(file);
+}
+});
+
 copyButton.addEventListener('click', () => {
 const textToCopy = asciiOutput.innerText;
 if (textToCopy && textToCopy !== initialPlaceholderText) {
@@ -198,6 +223,7 @@ console.error('Could not copy text: ', err);
 });
 }
 });
+
 exportHtmlButton.addEventListener('click', () => {
 const isColor = colorToggle.checked;
 const asciiContent = isColor ? asciiOutput.innerHTML : asciiOutput.textContent;
@@ -216,22 +242,7 @@ a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
 });
-document.body.addEventListener('dragover', (e) => {
-e.preventDefault();
-document.body.classList.add('dragover');
-});
-document.body.addEventListener('dragleave', (e) => {
-e.preventDefault();
-document.body.classList.remove('dragover');
-});
-document.body.addEventListener('drop', (e) => {
-e.preventDefault();
-document.body.classList.remove('dragover');
-const file = e.dataTransfer.files[0];
-if (file && file.type.startsWith('image/')) {
-handleImageFile(file);
-}
-});
+
 function handleImageFile(file) {
 const reader = new FileReader();
 reader.onload = (e) => {
@@ -244,48 +255,64 @@ img.src = e.target.result;
 };
 reader.readAsDataURL(file);
 }
+
 function handleLoadedImage() {
 if (currentImage) {
 generateAscii();
 }
 }
+
 function generateAscii() {
 if (!currentImage) return;
+
 const maxWidth = parseInt(widthSlider.value);
+const contrast = parseFloat(contrastSlider.value);
 const aspectRatio = currentImage.height / currentImage.width;
+
 const newWidth = maxWidth;
 const newHeight = Math.round(newWidth * aspectRatio);
+
 canvas.width = newWidth;
 canvas.height = newHeight;
 ctx.drawImage(currentImage, 0, 0, newWidth, newHeight);
+
 const imageData = ctx.getImageData(0, 0, newWidth, newHeight).data;
 let outputString = '';
 const isColorMode = colorToggle.checked;
+
 for (let i = 0; i < imageData.length; i += 4) {
 const r = imageData[i];
 const g = imageData[i + 1];
 const b = imageData[i + 2];
+
 const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
-const charIndex = Math.floor((brightness / 255) * (ASCII_CHARS.length - 1));
+
+let adjustedBrightness = (brightness - 128) * contrast + 128;
+adjustedBrightness = Math.max(0, Math.min(255, adjustedBrightness));
+
+const charIndex = Math.floor((adjustedBrightness / 255) * (ASCII_CHARS.length - 1));
 const char = ASCII_CHARS[charIndex];
+
 if (isColorMode) {
 const escapedChar = { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[char] || char;
 outputString += `<span style="color:rgb(${r},${g},${b})">${escapedChar}</span>`;
 } else {
 outputString += char;
 }
+
 if ((i / 4 + 1) % newWidth === 0) {
 outputString += '\n';
 }
 }
+
 if (isColorMode) {
 asciiOutput.innerHTML = outputString;
 } else {
 asciiOutput.textContent = outputString;
 }
 }
+
 function createHtmlForExport(asciiContent, isColor) {
-const content = asciiContent.replace(/`/g, '\\`');
 const styleColor = isColor ? '' : `color: #00ff00;`;
 return `<!DOCTYPE html>
 <html lang="en">
@@ -298,7 +325,7 @@ margin: 0;
 padding: 0;
 width: 100%;
 height: 100%;
-overflow: hidden;
+overflow: auto;
 background-color: #000;
 display: flex;
 justify-content: center;
@@ -310,34 +337,13 @@ font-family: 'Courier New', Courier, monospace;
 white-space: pre;
 line-height: .55em;
 letter-spacing: .05em;
+font-size: 8px;
 margin: 0;
 }
 </style>
 </head>
 <body>
-<pre id="ascii-art-container"></pre>
-<script>
-const asciiArtContainer = document.getElementById("ascii-art-container");
-const isColor = ${isColor};
-const asciiData = \`${content}\`;
-function resizeAscii() {
-if (isColor) {
-asciiArtContainer.innerHTML = asciiData;
-} else {
-asciiArtContainer.textContent = asciiData;
-}
-asciiArtContainer.style.fontSize = "10px";
-const preRect = asciiArtContainer.getBoundingClientRect();
-if (preRect.width === 0 || preRect.height === 0) return;
-const widthScale = window.innerWidth / preRect.width;
-const heightScale = window.innerHeight / preRect.height;
-const scale = Math.min(widthScale, heightScale);
-const newFontSize = 10 * scale * 0.98;
-asciiArtContainer.style.fontSize = \`\${newFontSize}px\`;
-}
-resizeAscii();
-window.addEventListener("resize", resizeAscii);
-<\/script>
+<pre>${asciiContent}</pre>
 </body>
 </html>`;
 }
