@@ -1,21 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-V2CLS5LW6S"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-V2CLS5LW6S');
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adventure</title>
-<meta name="robots" content="noindex">
 <style>
 body,
 html {
@@ -783,6 +771,7 @@ speed: 30
 type: 'special'
 }
 };
+
 const NPC_DATA = {
 [TILE.TRADER]: {
 getDialogue: () => "Greetings, traveler! I have rare goods, if you have the resources.",
@@ -805,6 +794,10 @@ action: "close"
 },
 [TILE.WISE_OLD_MAN]: {
 getDialogue: () => {
+if (!gameState.player.boughtGemUpgrade) {
+return "Ah, a fellow adventurer! Those gems 💎 you carry... they pulse with latent energy. For 10 gems, I can unlock your true potential and permanently increase your strength! ⚔️";
+}
+
 const dialogues = [
 "The underworld holds treasures beyond imagination, but also deeper dangers.",
 "They say a great beast guards a mythical creature on the 20th floor...",
@@ -813,12 +806,36 @@ const dialogues = [
 ];
 return dialogues[Math.floor(Math.random() * dialogues.length)];
 },
-options: (npc) => [{
-text: "Interesting...",
+options: (npc) => {
+let opts = [];
+
+if (!gameState.player.boughtGemUpgrade) {
+opts.push({
+text: "Trade 10 💎 for +2 ⚔️ Strength",
+action: () => {
+if (gameState.player.gems >= 10) {
+gameState.player.gems -= 10;
+gameState.player.strength += 2;
+gameState.player.boughtGemUpgrade = true;
+showMessage(`You feel a surge of power! Strength permanently increased to ${gameState.player.strength}!`);
+updateHUD();
+} else {
+showMessage(`You don't have 10 ${TILE.GEM}! Return when you do.`);
+}
+}
+});
+}
+
+opts.push({
+text: gameState.player.boughtGemUpgrade ? "Interesting..." : "I'll think about it.",
 action: "close"
-}]
+});
+
+return opts;
+}
 }
 };
+
 const gameContainer = document.getElementById('game-container');
 const gameWorld = document.getElementById('game-world');
 const nightOverlay = document.getElementById('night-overlay');
@@ -920,6 +937,7 @@ messageButton.onclick = null;
 messageOptions.innerHTML = '';
 processMessageQueue();
 }
+
 function showHowToPlay() {
 const costs = gameState.levelConfig;
 const instructions = `
@@ -932,8 +950,8 @@ const instructions = `
 <p>Find the key 🔑, unlock the door 🚪, and advance. Your ultimate quest is to reach <strong>Level 20 and rescue the captive Unicorn 🦄!</strong></p>
 <h3>Your Attributes</h3>
 <ul>
-<li><strong>❤️ Health:</strong> Your life force. Restore it by eating food (🍓, 🍉) or touching the magic swan 🦢.</li>
-<li><strong>⚔️ Strength:</strong> Your attack power. Increased by gaining experience points (XP).</li>
+<li><strong>❤️ Health:</strong> Your life force. Restore it by eating food (🍓, 🍉), touching the magic swan 🦢, or crafting potions (🌿).</li>
+<li><strong>⚔️ Strength:</strong> Your attack power. Increased by gaining XP or trading with the Wise Old Man 🧙.</li>
 <li><strong>⭐ XP:</strong> Earned by defeating monsters.</li>
 <li><strong>🪵 Wood/🪨 Stone/💎 Gems/🌿 Herbs:</strong> Crafting and trading resources. Cost health to gather.</li>
 <li>Every 5th level (5, 10, 15) is a dark underworld where you can find gems 💎 and stone 🪨.</li>
@@ -952,6 +970,7 @@ const instructions = `
 <li><strong>'P' Key:</strong> Craft arrows (costs ${ARROW_CRAFTING_COST} 🪵).</li>
 <li><strong>'V' Key:</strong> Craft Stone Sword (costs ${STONE_SWORD_COST} 🪨).</li>
 <li><strong>'H' Key:</strong> Craft Stone Sledgehammer (costs ${STONE_SLEDGE_COST} 🪨).</li>
+<li><strong>'M' Key:</strong> Craft Health Potion (costs 5 🌿).</li>
 <li><strong>Right-Click:</strong> Shoot (if crossbow is equipped).</li>
 </ul>
 </div>
@@ -964,6 +983,7 @@ const instructions = `
 </ul>`;
 showMessage(instructions, () => { });
 }
+
 function setupNewGame() {
 if (gameLoopInterval) clearInterval(gameLoopInterval);
 if (mainGameLoopId) cancelAnimationFrame(mainGameLoopId);
@@ -2106,6 +2126,34 @@ gameState.player.arrows += 50;
 updateHUD();
 showMessage(`You crafted 50 arrows! +50 ${TILE.ARROW}, -${cost} 🪵`);
 }
+
+function craftHealthPotion() {
+if (gameState.isFighting) {
+showMessage("Cannot craft during combat!");
+return;
+}
+
+const HERB_COST = 5;
+const HEAL_AMOUNT = 50;
+
+if (gameState.player.herbs < HERB_COST) {
+showMessage(`Need ${HERB_COST} ${TILE.HERB} to craft a health potion.`);
+return;
+}
+
+if (gameState.player.hp >= gameState.player.maxHp) {
+showMessage("You are already at full health!");
+return;
+}
+
+gameState.player.herbs -= HERB_COST;
+gameState.player.hp = Math.min(gameState.player.maxHp, gameState.player.hp + HEAL_AMOUNT);
+
+showMessage(`You crafted a potion! +${HEAL_AMOUNT} ❤️, -${HERB_COST} 🌿`);
+updateHUD();
+showPlayerStatusBar();
+}
+
 function equipWeapon(weaponId) {
 if (gameState.player.inventory.includes(weaponId)) {
 gameState.player.equippedWeapon = weaponId;
@@ -2703,6 +2751,11 @@ buildStoneWeapon('sword');
 } else if (key === 'h') {
 e.preventDefault();
 buildStoneWeapon('sledge');
+
+} else if (key === 'm') {
+e.preventDefault();
+craftHealthPotion();
+
 } else if (key === 'e') {
 e.preventDefault();
 handleNPCInteraction();
