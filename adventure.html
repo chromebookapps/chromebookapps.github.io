@@ -1,21 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-V2CLS5LW6S"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-V2CLS5LW6S');
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adventure</title>
-<meta name="robots" content="noindex">
 <style>
 body,
 html {
@@ -142,6 +130,23 @@ transform: scale(1);
 50% {
 transform: scale(1.1);
 }
+}
+@keyframes pulse-red {
+0%, 100% {
+transform: scale(1);
+color: #ffcdd2;
+background-color: rgba(239, 83, 80, 0.7);
+}
+50% {
+transform: scale(1.05);
+color: #ffffff;
+background-color: rgba(244, 67, 54, 0.9);
+}
+}
+.hud-item.low-health-warning {
+animation: pulse-red 1s infinite ease-in-out;
+border-radius: 8px;
+box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
 }
 .cell.path {
 background-color: rgba(224, 224, 224, 0.3);
@@ -1894,6 +1899,7 @@ delete visibleNpcElements[npcId];
 }
 }
 }
+
 function updateHUD() {
 if (!gameState || !gameState.player) return;
 hpDisplay.textContent = `${gameState.player.hp}/${gameState.player.maxHp}`;
@@ -1907,8 +1913,17 @@ gemDisplay.textContent = gameState.player.gems;
 herbDisplay.textContent = gameState.player.herbs;
 arrowsDisplay.textContent = gameState.player.inventory.includes('crossbow') ? gameState.player.arrows : '—';
 timeDisplay.textContent = gameState.timeOfDay === 'day' ? '☀️ Day' : '🌙 Night';
+
+const hpElement = document.getElementById('hud-hp');
+if ((gameState.player.hp / gameState.player.maxHp) < 0.25) {
+hpElement.classList.add('low-health-warning');
+} else {
+hpElement.classList.remove('low-health-warning');
+}
+
 updateWeaponBar();
 }
+
 function updateWeaponBar() {
 weaponBar.innerHTML = '';
 const availableWeapons = WEAPON_HOTBAR_ORDER.filter(wId => gameState.player.inventory.includes(wId));
@@ -2238,14 +2253,22 @@ gameOver();
 }
 updateHUD();
 }
+
 function killMonster(monster) {
 monster.isDying = true;
 const reward = OBJECT_DATA[monster.tile].xpReward || 0;
 showMessage(`Defeated ${monster.tile}! +${reward} XP ⭐`);
-if (gameState.level === 20 && monster.isBoss) {
+
+if (monster.isBoss) {
+showMessage("The boss dropped some food! 🍉");
+gameState.world[monster.y][monster.x] = TILE.FOOD_2;
+
+if (gameState.level === 20) {
 gameState.player.hasUnicornKey = true;
 showMessage("The Dragon dropped a strange key! 🗝️ It must be for the Unicorn's cage!");
 }
+}
+
 gameState.player.xp += reward;
 checkIfStrengthIncreases();
 updateHUD();
@@ -2266,8 +2289,10 @@ gameState.monsters = gameState.monsters.filter((m) => m.id !== monster.id);
 } else {
 gameState.monsters = gameState.monsters.filter((m) => m.id !== monster.id);
 }
+
 updateCell(monster.x, monster.y, gameState.world[monster.y][monster.x]);
 }
+
 function checkIfStrengthIncreases() {
 while (gameState.player.xp >= gameState.player.xpForNextStrength) {
 gameState.player.xp -= gameState.player.xpForNextStrength;
