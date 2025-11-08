@@ -63,6 +63,7 @@ box-sizing: border-box;
 #stats p {
 margin: 5px 0;
 font-size: 14px;
+font-family: sans-serif;
 }
 #budget-details {
 padding-left: 10px;
@@ -315,6 +316,7 @@ height: 100%;
 background-color: rgba(0, 0, 0, 0.75);
 justify-content: center;
 align-items: center;
+font-family: sans-serif;
 }
 .modal.active {
 display: flex;
@@ -548,10 +550,10 @@ scrollbar-color: #007bff #2c2c2c;
 <button class="tool-btn" data-tool="industry" title="Industry">🏭 $12k</button>
 <button class="tool-btn" data-tool="road" title="Road">➖ $25</button>
 <button class="tool-btn" data-tool="park" title="Park">🌳 $450</button>
-    <button class="tool-btn" data-tool="power-plant" title="Power Plant">⚡️ $8k</button>
+<button class="tool-btn" data-tool="power-plant" title="Power Plant">⚡️ $8k</button>
 <button class="tool-btn" data-tool="power-line" title="Power Line">🔌 $50</button>
-    <button class="tool-btn" data-tool="police-station" title="Police Station">🚓 $10k</button>
-    <button class="tool-btn" data-tool="fire-station" title="Fire Station">🚒 $12k</button>
+<button class="tool-btn" data-tool="police-station" title="Police Station">🚓 $10k</button>
+<button class="tool-btn" data-tool="fire-station" title="Fire Station">🚒 $12k</button>
 <button class="tool-btn" data-tool="school" title="School">🏫 $12k</button>
 <button class="tool-btn" data-tool="stadium" title="Stadium">🏟️ $65k</button>
 <button class="tool-btn" data-tool="airport" title="Airport">✈️ $80k</button>
@@ -617,9 +619,9 @@ MAX_LOG_ENTRIES: 100,
 POWER_PLANT_CAPACITY: 800,
 AIRPORT_INCOME_PER_CITIZEN: 0.25,
 CUSTOMER_RADIUS: 6,
-    INCOME_PER_PERSON: 1.5,
+INCOME_PER_PERSON: 1.5,
 ROAD_MAINTENANCE_PER_WEAR: 5,
-    INDUSTRY_INCOME: 1600,
+INDUSTRY_INCOME: 1600,
 costs: {
 house: 700,
 store: 900,
@@ -627,10 +629,10 @@ industry: 12000,
 park: 450,
 stadium: 65000,
 airport: 80000,
-    'power-plant': 8000,
+'power-plant': 8000,
 'power-line': 50,
-    'police-station': 10000,
-    'fire-station': 12000,
+'police-station': 10000,
+'fire-station': 12000,
 school: 12000,
 bulldoze: 50,
 road: 25,
@@ -1152,6 +1154,8 @@ closeButton.onclick = () => { modal.style.display = 'none'; };
 }
 modal.style.display = 'flex';
 }
+
+
 function showHelp() {
 const modal = document.getElementById('how-to-play-modal');
 if (!modal) return;
@@ -1160,36 +1164,43 @@ if (!modalContent) return;
 modalContent.innerHTML = `<span class="modal-close">&times;</span>
 <h2>How to Play City Builder 2</h2>
 <p>Welcome, Mayor! Your main goal is to build a thriving metropolis and reach a population of <strong>${config.WIN_CONDITION_POPULATION.toLocaleString()}</strong> residents. But be careful – if your city's budget drops below zero, you'll go bankrupt and the game is over!</p>
+
 <h4>The Basics 💵</h4>
-<ul><li><strong>Income:</strong> Your primary source of income is taxes from houses, income from stores, and profits from industry.</li><li><strong>Tax Level:</strong> Control your tax level! <strong>Low</strong> boosts growth, <strong>High</strong> earns more money but slows growth.</li><li><strong>Expenses:</strong> All buildings and worn roads have an annual maintenance cost.</li></ul>
-<h4>City Services & Zoning 🏘️</h4>
 <ul>
-<li><strong>Houses (🏠):</strong> Where citizens live. They grow over time (🏘️ -> 🏢) if conditions are good.</li>
-<li><strong>Stores (🏬):</strong> Generate income based on nearby population.</li>
-<li><strong>Industrial Zones (🏭):</strong> Generate a strong, steady income, but produce <strong class="text-red">pollution</strong>.</li>
-<li><strong>Pollution (🟫):</strong> Spreads from industry and will stop houses from growing. Keep your residential zones away!</li>
-<li><strong>Parks (🌳) & Lakes (💧):</strong> Provide happiness and growth bonuses to nearby homes.</li>
-<li><strong>Schools (🏫), Police (🚓), Fire (🚒):</strong> Provide essential services that boost growth and safety.</li>
+<li><strong>Income:</strong> Your main income comes from <strong>House Taxes</strong>, <strong>Store Sales</strong>, and <strong>Industrial Profits</strong>.</li>
+<li><strong>Economic Strategy:</strong> You must balance your strategy. <strong>Industry (🏭)</strong> offers high, stable income but creates pollution. <strong>Stores (🏬)</strong> provide clean income that grows with your nearby population.</li>
+<li><strong>Tax Level:</strong> Control your tax level! <strong>Low</strong> boosts growth, <strong>High</strong> earns more money but slows growth.</li>
+<li><strong>Expenses:</strong> All buildings and roads have an annual maintenance cost.</li>
+</ul>
+
+<h4>City Services & Strategy 🏘️</h4>
+<ul>
+<li><strong>Houses (🏠):</strong> Where citizens live. They grow over time (🏘️ -> 🏢) if conditions are good (power, services, low pollution).</li>
+<li><strong>Pollution (🟫):</strong> Spreads from industry and will slow residential growth. <strong>Strategy:</strong> Build <strong>Parks (🌳)</strong> nearby! Parks now <strong class="text-green">actively clean the air</strong>, allowing you to create buffer zones and build smarter.</li>
+<li><strong>Services (🚓🚒🏫):</strong> <strong>Police</strong>, <strong>Fire</strong>, and <strong>Schools</strong> are key investments. They provide safety and also give a <strong class="text-green">direct happiness bonus</strong>, boosting the growth of all nearby homes.</li>
+<li><strong>Parks & Lakes (🌳💧):</strong> Provide a significant happiness and growth bonus to nearby homes.</li>
 <li><strong>Major Venues (🏟️✈️):</strong> Expensive 2x2 buildings that provide massive city-wide benefits.</li>
 </ul>
+
 <h4>Infrastructure ⚡️</h4>
 <ul>
-<li><strong>Power Plants (⚡️):</strong> Each supports ${config.POWER_PLANT_CAPACITY} connections.</li>
-<li><strong>Power Lines (🔌):</strong> Extend your power grid.</li>
-<li><strong>Roads (➖):</strong> Worn roads cost more to maintain each year!</li>
+<li><strong>Power Plants (⚡️):</strong> Each supports ${config.POWER_PLANT_CAPACITY} connections. Power is distributed along power lines and buildings.</li>
+<li><strong>Roads (➖):</strong> Roads wear down from heavy traffic, increasing their maintenance cost. <strong>Strategy:</strong> If you manage your traffic well (e.g., by building alternate routes), lightly-used roads will <strong class="text-green">repair themselves</strong> over time, saving you money!</li>
 </ul>
+
 <h4>Disasters & Challenges 🔥</h4>
-<p>Keep an eye on the event ticker!</p>
-<ul>
-<li><strong>Fires (🔥), Thunderstorms (⛈️), Recessions (📉), King Kong (🦍)</strong> are all dangers!</li>
-</ul>
+<p>Keep an eye on the event ticker! Disasters like <strong>Fires (🔥)</strong>, <strong>Recessions (📉)</strong>, and even <strong>King Kong (🦍)</strong> can strike your city.</p>
+
 <p style="text-align: center; margin-top: 20px;"><strong>Good luck, Mayor!</strong> &copy;2025 Johnny Heggelund</p>`;
+
 const closeButton = modalContent.querySelector('.modal-close');
 if (closeButton) {
 closeButton.onclick = () => { modal.style.display = 'none'; };
 }
 modal.style.display = 'flex';
 }
+
+
 function showEconomyWindow() {
 const modal = document.getElementById('economy-modal');
 if (!modal) return;
@@ -1226,41 +1237,37 @@ modal.style.display = 'flex';
 
 
 function simulatePollution() {
-    // 1. All forurensning reduseres litt over tid (Eksisterende kode)
-    for (let i = 0; i < pollutionGrid.length; i++) {
-        if (pollutionGrid[i] > 0) {
-            pollutionGrid[i] = Math.max(0, pollutionGrid[i] - 1);
-        }
-    }
+for (let i = 0; i < pollutionGrid.length; i++) {
+if (pollutionGrid[i] > 0) {
+pollutionGrid[i] = Math.max(0, pollutionGrid[i] - 1);
+}
+}
 
-    // 2. Industrisoner skaper og sprer forurensning (Eksisterende kode)
-    for (const index of industrialZones) {
-        const cell = world[index];
-        if (cell && cell.building?.powered) {
-            pollutionGrid[index] = Math.min(255, pollutionGrid[index] + 40);
-            getNeighbors(index, 6).forEach((nIndex) => {
-                if (nIndex >= 0 && nIndex < pollutionGrid.length) {
-                    pollutionGrid[nIndex] = Math.min(255, pollutionGrid[nIndex] + 5);
-                }
-            });
-        }
-    } // <-- Loopen for industri slutter her
+for (const index of industrialZones) {
+const cell = world[index];
+if (cell && cell.building?.powered) {
+pollutionGrid[index] = Math.min(255, pollutionGrid[index] + 40);
+getNeighbors(index, 6).forEach((nIndex) => {
+if (nIndex >= 0 && nIndex < pollutionGrid.length) {
+pollutionGrid[nIndex] = Math.min(255, pollutionGrid[nIndex] + 5);
+}
+});
+}
+}
 
-    // 3. Parker renser luften aktivt (Ny kode)
-    // Denne skal være ETTER industri-loopen, men INNI funksjonen
-    world.forEach((cell, index) => {
-        if (cell && cell.building?.type === 'park' && cell.building.powered) {
-            const cleanRadius = 3;
-            const cleanAmount = 3;
-            getNeighbors(index, cleanRadius).forEach((nIndex) => {
-                if (nIndex >= 0 && nIndex < pollutionGrid.length) {
-                    pollutionGrid[nIndex] = Math.max(0, pollutionGrid[nIndex] - cleanAmount);
-                }
-            });
-        }
-    });
+world.forEach((cell, index) => {
+if (cell && cell.building?.type === 'park' && cell.building.powered) {
+const cleanRadius = 3;
+const cleanAmount = 3;
+getNeighbors(index, cleanRadius).forEach((nIndex) => {
+if (nIndex >= 0 && nIndex < pollutionGrid.length) {
+pollutionGrid[nIndex] = Math.max(0, pollutionGrid[nIndex] - cleanAmount);
+}
+});
+}
+});
 
-} // <-- simulatePollution-funksjonen slutter her
+}
 
 
 function getEconomyData(isRecession = false) {
@@ -1277,8 +1284,7 @@ stadium: { count: 0, totalMaintenance: 0 }, airport: { count: 0, totalMaintenanc
 road: { count: 0, totalMaintenance: 0 }, total: 0,
 };
 
-    // Sett en enkel, flat rate foreløpig.
-    const maintenanceRate = 0.035; // (Dvs. 3.5%)
+const maintenanceRate = 0.035;
 
 let currentPopulation = 0;
 world.forEach((cell, index) => {
@@ -1338,6 +1344,8 @@ incomeSources.total += airportRevenue;
 }
 return { incomeSources, expenseSources, currentPopulation };
 }
+
+
 function simulateYear(state, logFn) {
 let { budget, population, year, taxRate } = state;
 let isRecessionYear = false;
@@ -1353,18 +1361,32 @@ if (cell.building?.type === 'house') {
 if (cell.building.powered && !cell.onFire) {
 const pollution = pollutionGrid[index];
 const pollutionPenalty = -Math.floor(pollution / 10);
-const hasPark = getNeighbors(index, 3).some((n) => world[n]?.building?.type === 'park' && world[n].building.powered);
+
 const hasRoad = getNeighbors(index, 1).some((n) => world[n]?.base === 'road');
-const parkAndRoadBonus = (hasPark ? 1.0 : 0) + (hasRoad ? 1.5 : 0) + (hasPark && hasRoad ? 0.5 : 0);
-const schoolBonus = getNeighbors(index, 15).some((n) => world[n]?.building?.type === 'school' && world[n].building.powered) ? 4 : 0;
-const stadiumBonus = getNeighbors(index, 20).some((n) => world[n]?.building?.type === 'stadium' && world[n].building.powered) ? 12 : 0;
-const lakeBonus = getNeighbors(index, 1).some((n) => world[n]?.base === 'lake') ? 3.5 : 0;
+const hasPark = getNeighbors(index, 5).some((n) => world[n]?.building?.type === 'park' && world[n].building.powered);
+const hasLake = getNeighbors(index, 1).some((n) => world[n]?.base === 'lake');
+const hasSchool = getNeighbors(index, 15).some((n) => world[n]?.building?.type === 'school' && world[n].building.powered);
+const hasStadium = getNeighbors(index, 20).some((n) => world[n]?.building?.type === 'stadium' && world[n].building.powered);
+
+const hasPolice = getNeighbors(index, 10).some((n) => world[n]?.building?.type === 'police-station' && world[n].building.powered);
+const hasFire = getNeighbors(index, 10).some((n) => world[n]?.building?.type === 'fire-station' && world[n].building.powered);
+
+const roadBonus = hasRoad ? 1.0 : 0;
+const parkBonus = hasPark ? 1.5 : 0;
+const lakeBonus = hasLake ? 3.5 : 0;
+const schoolBonus = hasSchool ? 4.0 : 0;
+const stadiumBonus = hasStadium ? 12.0 : 0;
+const policeBonus = hasPolice ? 1.5 : 0;
+const fireBonus = hasFire ? 1.5 : 0;
+
 const crimePenalty = cell.crimeLevel > 0 && cell.building.population >= 30 ? -5 : 0;
 let taxBonus = 0;
-    if (taxRate < 0.6) taxBonus = 5;
-    if (taxRate > 0.8) taxBonus = -5;
+if (taxRate < 0.6) taxBonus = 5;
+if (taxRate > 0.8) taxBonus = -5;
 const randomFactor = 0.5 + (Math.random() * 0.5);
-let growth = randomFactor + parkAndRoadBonus + schoolBonus + stadiumBonus + lakeBonus + taxBonus + crimePenalty + pollutionPenalty;
+
+let growth = randomFactor + roadBonus + parkBonus + lakeBonus + schoolBonus + stadiumBonus + policeBonus + fireBonus + taxBonus + crimePenalty + pollutionPenalty;
+
 if (pollution > 80) growth = Math.min(growth, -2);
 cell.building.population += growth;
 cell.building.population = Math.max(0, Math.min(cell.building.population, 150));
@@ -1382,6 +1404,8 @@ year++;
 updateIncomeExpense(yearlyIncome, maintenanceCosts);
 return { budget, population, year };
 }
+
+
 function handleDisasters(logFn, population, year) {
 let isRecession = false;
 const firesToSpread = [];
@@ -1512,32 +1536,30 @@ plant.powerLoad = poweredByThisPlant.size;
 
 
 function updateRoadWear() {
-    world.forEach((cell, i) => {
-        if (!cell) return;
+world.forEach((cell, i) => {
+if (!cell) return;
 
-        if (cell.base === 'road') {
-            let nearbyPop = 0;
-            getNeighbors(i, 2).forEach((nIndex) => {
-                const nCell = world[nIndex];
-                if (nCell?.building?.type === 'house' && nCell.building.population) {
-                    nearbyPop += nCell.building.population;
-                }
-            });
+if (cell.base === 'road') {
+let nearbyPop = 0;
+getNeighbors(i, 2).forEach((nIndex) => {
+const nCell = world[nIndex];
+if (nCell?.building?.type === 'house' && nCell.building.population) {
+nearbyPop += nCell.building.population;
+}
+});
 
-            cell.hasTraffic = nearbyPop > 50;
+cell.hasTraffic = nearbyPop > 50;
 
-            if (nearbyPop > 800) cell.roadWear = 3;
-            else if (nearbyPop > 300) cell.roadWear = 2;
-            else if (nearbyPop > 100) cell.roadWear = 1;
-            else {
-                // Veien har lite trafikk, reparer den sakte
-                cell.roadWear = Math.max(0, cell.roadWear - 1);
-            }
-        } else {
-            // Hvis det IKKE er en vei
-            cell.hasTraffic = false;
-        }
-    });
+if (nearbyPop > 800) cell.roadWear = 3;
+else if (nearbyPop > 300) cell.roadWear = 2;
+else if (nearbyPop > 100) cell.roadWear = 1;
+else {
+cell.roadWear = Math.max(0, cell.roadWear - 1);
+}
+} else {
+cell.hasTraffic = false;
+}
+});
 }
 
 
