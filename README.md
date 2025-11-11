@@ -1,7 +1,4 @@
 # Browser Apps for PC Users
-
-To **see** an updated list with direct links [Click here](https://heggelundjohnny.github.io/apps/)
-
 ---
 
 ## ⚖️ License
